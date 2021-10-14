@@ -27,6 +27,7 @@ class _MyAppState extends State<MyApp> {
   };
 
   List<Meal> _availableMeals = DUMMY_MEALS;
+  List<Meal> _favoriteMeals = [];
 
   void _setFilter(Map<String, bool> filterData) {
     setState(() {
@@ -48,6 +49,25 @@ class _MyAppState extends State<MyApp> {
         return true;
       }).toList();
     });
+  }
+
+  void _toggleFavorite(String mealId) {
+    final existingIndex =
+        _favoriteMeals.indexWhere((element) => element.id == mealId);
+    if (existingIndex >= 0) {
+      setState(() {
+        _favoriteMeals.removeAt(existingIndex);
+      });
+    } else {
+      setState(() {
+        _favoriteMeals
+            .add(DUMMY_MEALS.firstWhere((element) => element.id == mealId));
+      });
+    }
+  }
+
+  bool _isMealFavorite (String id){
+    return _favoriteMeals.any((element) => element.id == id);
   }
 
   @override
@@ -76,10 +96,10 @@ class _MyAppState extends State<MyApp> {
       // home: CategoriesScreen(),
       // initialRoute: '/',  //default is '/'
       routes: {
-        '/': (ctx) => TabScreen(), //same as home
+        '/': (ctx) => TabScreen(_favoriteMeals), //same as home
         CategoryMealsScreen.RouteName: (ctx) =>
             CategoryMealsScreen(_availableMeals),
-        MealDetailScreen.RouteName: (ctx) => MealDetailScreen(),
+        MealDetailScreen.RouteName: (ctx) => MealDetailScreen(_toggleFavorite, _isMealFavorite),
         FiltersScreen.RouteName: (ctx) => FiltersScreen(_setFilter, _filters),
       },
       //pushes CategoriesScreen for the route which is not registered in the routes map!!
